@@ -37,6 +37,30 @@ function PublicRoute({ children }) {
   return children
 }
 
+function NewUserRedirect({ children }) {
+  const { user, loading } = useAuth()
+  const [checking, setChecking] = React.useState(true)
+  const [hasClient, setHasClient] = React.useState(false)
+
+  React.useEffect(() => {
+    async function check() {
+      if (!user) { setChecking(false); return }
+      // Admins skip onboarding
+      if (user.user_metadata?.role === 'admin') { setHasClient(true); setChecking(false); return }
+      const { supabase } = await import('./lib/supabase')
+      const { data } = await supabase.from('clients').select('id').eq('user_id', user.id).limit(1)
+      setHasClient(data && data.length > 0)
+      setChecking(false)
+    }
+    check()
+  }, [user])
+
+  if (loading || checking) return null
+  if (!user) return <Navigate to="/login" replace />
+  if (!hasClient) return <Navigate to="/onboarding" replace />
+  return children
+}
+
 function App() {
   return (
     <BrowserRouter>
@@ -45,9 +69,10 @@ function App() {
           {/* Public routes */}
           <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
           <Route path="/onboarding" element={<ProtectedRoute><OnboardingPage /></ProtectedRoute>} />
+          <Route path="/onboarding/success" element={<ProtectedRoute><OnboardingPage /></ProtectedRoute>} />
 
           {/* Protected app routes */}
-          <Route path="/" element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
+          <Route path="/" element={<NewUserRedirect><AppLayout /></NewUserRedirect>}>
             <Route index element={<Navigate to="/dashboard" replace />} />
             <Route path="dashboard" element={<DashboardPage />} />
             <Route path="calls" element={<CallLogPage />} />
