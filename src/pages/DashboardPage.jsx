@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import { Icons, StatCard, StatusBadge } from '../components/ui'
+import OnboardingWalkthrough from '../components/OnboardingWalkthrough'
 
 export default function DashboardPage() {
   const [calls, setCalls] = useState([])
@@ -36,6 +37,7 @@ export default function DashboardPage() {
       }
       setLoading(false)
     }
+
     load()
   }, [])
 
@@ -43,27 +45,65 @@ export default function DashboardPage() {
 
   return (
     <div>
+      {/* Onboarding Walkthrough — only shows for first-time users */}
+      <OnboardingWalkthrough />
+
       <div className="mb-8">
         <h1 className="text-2xl font-bold font-outfit" style={{ color: "#e2e8f0" }}>Dashboard</h1>
         <p className="text-sm mt-1" style={{ color: "#64748b" }}>Your lead recovery overview</p>
       </div>
 
-      {/* Stat Cards */}
+      {/* Stat Cards — wrapping in data-tour containers */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 mb-8">
-        <StatCard label="Total Calls Recovered" value={stats.total} icon={Icons.phone} color="#06b6d4"
-          sparkData={[5, 8, 6, 9, 7, 11, stats.thisWeek]} subtext={`+${stats.thisWeek} this week`} />
-        <StatCard label="Revenue Recovered" value={`$${stats.revenue.toLocaleString()}`} icon={Icons.dollar} color="#10b981"
-          sparkData={[3, 5, 8, 6, 9, 11, 14]} />
-        <StatCard label="Conversion Rate" value={`${conversionRate}%`} icon={Icons.trending} color="#f59e0b"
-          sparkData={[20, 25, 22, 28, 30, conversionRate]} />
-        <StatCard label="New Leads" value={stats.newLeads} icon={Icons.mail} color="#8b5cf6" subtext="Awaiting follow-up" />
+        <div data-tour="calls">
+          <StatCard
+            label="Total Calls Recovered"
+            value={stats.total}
+            icon={Icons.phone}
+            color="#06b6d4"
+            sparkData={[5, 8, 6, 9, 7, 11, stats.thisWeek]}
+            subtext={`+${stats.thisWeek} this week`}
+          />
+        </div>
+        <StatCard
+          label="Revenue Recovered"
+          value={`$${stats.revenue.toLocaleString()}`}
+          icon={Icons.dollar}
+          color="#10b981"
+          sparkData={[3, 5, 8, 6, 9, 11, 14]}
+        />
+        <StatCard
+          label="Conversion Rate"
+          value={`${conversionRate}%`}
+          icon={Icons.trending}
+          color="#f59e0b"
+          sparkData={[20, 25, 22, 28, 30, conversionRate]}
+        />
+        <div data-tour="agent-status">
+          <StatCard
+            label="New Leads"
+            value={stats.newLeads}
+            icon={Icons.mail}
+            color="#8b5cf6"
+            subtext="Awaiting follow-up"
+          />
+        </div>
       </div>
 
       {/* Recent Calls Table */}
-      <div className="rounded-xl overflow-hidden" style={{ background: "rgba(15, 23, 42, 0.6)", border: "1px solid rgba(100, 116, 139, 0.12)" }}>
+      <div data-tour="leads" className="rounded-xl overflow-hidden" style={{ background: "rgba(15, 23, 42, 0.6)", border: "1px solid rgba(100, 116, 139, 0.12)" }}>
         <div className="px-5 py-4 flex items-center justify-between" style={{ borderBottom: "1px solid rgba(100, 116, 139, 0.1)" }}>
           <h3 className="text-sm font-semibold" style={{ color: "#e2e8f0" }}>Recent Recovered Leads</h3>
-          <span className="text-xs px-2.5 py-1 rounded-full" style={{ background: "rgba(6, 182, 212, 0.1)", color: "#06b6d4" }}>{calls.length} leads</span>
+          <div className="flex items-center gap-3">
+            <span className="text-xs px-2.5 py-1 rounded-full" style={{ background: "rgba(6, 182, 212, 0.1)", color: "#06b6d4" }}>{calls.length} leads</span>
+            <div data-tour="notifications" className="relative cursor-pointer">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+              </svg>
+              <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full" style={{ background: "#06b6d4" }} />
+            </div>
+          </div>
         </div>
 
         {loading ? (
