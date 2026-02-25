@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import { Icons, StatCard, StatusBadge } from '../components/ui'
 import OnboardingWalkthrough from '../components/OnboardingWalkthrough'
+import OnboardingBanner from '../components/OnboardingBanner'
 
 export default function DashboardPage() {
   const [calls, setCalls] = useState([])
@@ -47,6 +48,7 @@ export default function DashboardPage() {
     <div>
       {/* Onboarding Walkthrough — only shows for first-time users */}
       <OnboardingWalkthrough />
+      <OnboardingBanner />
 
       <div className="mb-8">
         <h1 className="text-2xl font-bold font-outfit" style={{ color: "#e2e8f0" }}>Dashboard</h1>
