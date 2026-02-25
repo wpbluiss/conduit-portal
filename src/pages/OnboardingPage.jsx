@@ -64,7 +64,7 @@ export default function OnboardingPage() {
         notification_email: form.notification_email,
         avg_job_value: parseFloat(form.avg_job_value) || 0,
         website: form.website, timezone: form.timezone, user_id: user?.id,
-        status: "trial", plan: detectedPlan === "beauty" ? "starter" : "pro",
+        status: "onboarding", plan: detectedPlan === "beauty" ? "starter" : "pro",
         monthly_rate: plan.monthly,
       }).select()
       if (data && data[0]) setClientId(data[0].id)
