@@ -7,6 +7,7 @@ import LoginPage from './pages/LoginPage'
 import OnboardingPage from './pages/OnboardingPage'
 import DashboardPage from './pages/DashboardPage'
 import CallLogPage from './pages/CallLogPage'
+import SettingsPage from "./pages/SettingsPage"
 import AdminPage from './pages/AdminPage'
 import './index.css'
 
@@ -76,6 +77,7 @@ function App() {
             <Route index element={<Navigate to="/dashboard" replace />} />
             <Route path="dashboard" element={<DashboardPage />} />
             <Route path="calls" element={<CallLogPage />} />
+            <Route path="settings" element={<SettingsPage />} />
             <Route path="admin" element={<AdminPage />} />
             <Route path="clients" element={<AdminPage />} />
           </Route>

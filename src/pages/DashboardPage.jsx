@@ -1,17 +1,34 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
+import { useAuth } from '../context/AuthContext'
 import { Icons, StatCard, StatusBadge } from '../components/ui'
 import OnboardingWalkthrough from '../components/OnboardingWalkthrough'
 import OnboardingBanner from '../components/OnboardingBanner'
 
+const VOICE_NAMES = { alloy: "Alloy", ash: "Ash", ballad: "Ballad", coral: "Coral", echo: "Echo", sage: "Sage", shimmer: "Shimmer", verse: "Verse" }
+const LANG_FLAGS = { en: "🇺🇸", es: "🇪🇸", fr: "🇫🇷", pt: "🇧🇷", de: "🇩🇪", it: "🇮🇹", zh: "🇨🇳", ja: "🇯🇵", ko: "🇰🇷", hi: "🇮🇳" }
+const LANG_NAMES = { en: "English", es: "Spanish", fr: "French", pt: "Portuguese", de: "German", it: "Italian", zh: "Chinese", ja: "Japanese", ko: "Korean", hi: "Hindi" }
+
 export default function DashboardPage() {
+  const { user } = useAuth()
   const [calls, setCalls] = useState([])
+  const [client, setClient] = useState(null)
   const [stats, setStats] = useState({ total: 0, thisWeek: 0, converted: 0, revenue: 0, newLeads: 0 })
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     async function load() {
       try {
+        // Fetch client info
+        if (user) {
+          const { data: clientData } = await supabase
+            .from('clients')
+            .select('*')
+            .eq('user_id', user.id)
+            .limit(1)
+          if (clientData && clientData[0]) setClient(clientData[0])
+        }
+
         // Fetch recent calls
         const { data: callsData } = await supabase
           .from('calls')
@@ -21,10 +38,8 @@ export default function DashboardPage() {
 
         if (callsData) {
           setCalls(callsData)
-
           const now = new Date()
           const weekAgo = new Date(now - 7 * 24 * 60 * 60 * 1000)
-
           setStats({
             total: callsData.length,
             thisWeek: callsData.filter(c => new Date(c.created_at) > weekAgo).length,
@@ -38,15 +53,13 @@ export default function DashboardPage() {
       }
       setLoading(false)
     }
-
     load()
-  }, [])
+  }, [user])
 
   const conversionRate = stats.total > 0 ? Math.round((stats.converted / stats.total) * 100) : 0
 
   return (
     <div>
-      {/* Onboarding Walkthrough — only shows for first-time users */}
       <OnboardingWalkthrough />
       <OnboardingBanner />
 
@@ -55,40 +68,58 @@ export default function DashboardPage() {
         <p className="text-sm mt-1" style={{ color: "#64748b" }}>Your lead recovery overview</p>
       </div>
 
-      {/* Stat Cards — wrapping in data-tour containers */}
+      {/* Agent Status Card */}
+      {client && (
+        <div className="mb-6 rounded-xl p-5" style={{ background: "rgba(15,23,42,0.6)", border: `1px solid ${client.agent_configured ? "rgba(16,185,129,0.2)" : "rgba(245,158,11,0.2)"}` }}>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: client.agent_configured ? "rgba(16,185,129,0.15)" : "rgba(245,158,11,0.15)" }}>
+                <span className="text-2xl">{client.agent_configured ? "🤖" : "⏳"}</span>
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h3 className="text-sm font-semibold" style={{ color: "#e2e8f0" }}>AI Agent</h3>
+                  <span className="text-xs px-2 py-0.5 rounded-full font-semibold" style={{
+                    background: client.agent_configured ? "rgba(16,185,129,0.15)" : "rgba(245,158,11,0.15)",
+                    color: client.agent_configured ? "#10b981" : "#f59e0b",
+                  }}>
+                    {client.agent_configured ? "● Live" : "● Setting up"}
+                  </span>
+                </div>
+                <div className="flex items-center gap-3 mt-1">
+                  <span className="text-xs" style={{ color: "#64748b" }}>
+                    {VOICE_NAMES[client.agent_voice] || "Alloy"} voice
+                  </span>
+                  <span className="text-xs" style={{ color: "#475569" }}>·</span>
+                  <span className="text-xs" style={{ color: "#64748b" }}>
+                    {LANG_FLAGS[client.agent_language] || "🇺🇸"} {LANG_NAMES[client.agent_language] || "English"}
+                  </span>
+                  <span className="text-xs" style={{ color: "#475569" }}>·</span>
+                  <span className="text-xs" style={{ color: "#64748b" }}>
+                    {(client.agent_personality || "professional").charAt(0).toUpperCase() + (client.agent_personality || "professional").slice(1)}
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div className="text-right">
+              {client.assigned_phone && (
+                <p className="text-sm font-mono font-semibold" style={{ color: "#06b6d4" }}>{client.assigned_phone}</p>
+              )}
+              <a href="/settings" className="text-xs" style={{ color: "#64748b" }}>Configure →</a>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Stat Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 mb-8">
         <div data-tour="calls">
-          <StatCard
-            label="Total Calls Recovered"
-            value={stats.total}
-            icon={Icons.phone}
-            color="#06b6d4"
-            sparkData={[5, 8, 6, 9, 7, 11, stats.thisWeek]}
-            subtext={`+${stats.thisWeek} this week`}
-          />
+          <StatCard label="Total Calls Recovered" value={stats.total} icon={Icons.phone} color="#06b6d4" sparkData={[5, 8, 6, 9, 7, 11, stats.thisWeek]} subtext={`+${stats.thisWeek} this week`} />
         </div>
-        <StatCard
-          label="Revenue Recovered"
-          value={`$${stats.revenue.toLocaleString()}`}
-          icon={Icons.dollar}
-          color="#10b981"
-          sparkData={[3, 5, 8, 6, 9, 11, 14]}
-        />
-        <StatCard
-          label="Conversion Rate"
-          value={`${conversionRate}%`}
-          icon={Icons.trending}
-          color="#f59e0b"
-          sparkData={[20, 25, 22, 28, 30, conversionRate]}
-        />
+        <StatCard label="Revenue Recovered" value={`$${stats.revenue.toLocaleString()}`} icon={Icons.dollar} color="#10b981" sparkData={[3, 5, 8, 6, 9, 11, 14]} />
+        <StatCard label="Conversion Rate" value={`${conversionRate}%`} icon={Icons.trending} color="#f59e0b" sparkData={[20, 25, 22, 28, 30, conversionRate]} />
         <div data-tour="agent-status">
-          <StatCard
-            label="New Leads"
-            value={stats.newLeads}
-            icon={Icons.mail}
-            color="#8b5cf6"
-            subtext="Awaiting follow-up"
-          />
+          <StatCard label="New Leads" value={stats.newLeads} icon={Icons.mail} color="#8b5cf6" subtext="Awaiting follow-up" />
         </div>
       </div>
 
@@ -96,16 +127,7 @@ export default function DashboardPage() {
       <div data-tour="leads" className="rounded-xl overflow-hidden" style={{ background: "rgba(15, 23, 42, 0.6)", border: "1px solid rgba(100, 116, 139, 0.12)" }}>
         <div className="px-5 py-4 flex items-center justify-between" style={{ borderBottom: "1px solid rgba(100, 116, 139, 0.1)" }}>
           <h3 className="text-sm font-semibold" style={{ color: "#e2e8f0" }}>Recent Recovered Leads</h3>
-          <div className="flex items-center gap-3">
-            <span className="text-xs px-2.5 py-1 rounded-full" style={{ background: "rgba(6, 182, 212, 0.1)", color: "#06b6d4" }}>{calls.length} leads</span>
-            <div data-tour="notifications" className="relative cursor-pointer">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-                <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
-              </svg>
-              <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full" style={{ background: "#06b6d4" }} />
-            </div>
-          </div>
+          <span className="text-xs px-2.5 py-1 rounded-full" style={{ background: "rgba(6, 182, 212, 0.1)", color: "#06b6d4" }}>{calls.length} leads</span>
         </div>
 
         {loading ? (
@@ -136,13 +158,9 @@ export default function DashboardPage() {
                       <p className="text-xs font-mono" style={{ color: "#64748b" }}>{call.caller_phone}</p>
                     </td>
                     <td className="px-5 py-3.5 text-sm" style={{ color: "#94a3b8" }}>{call.service_needed || "—"}</td>
-                    <td className="px-5 py-3.5 text-sm font-semibold font-mono" style={{ color: "#10b981" }}>
-                      ${(call.estimated_value || 0).toLocaleString()}
-                    </td>
+                    <td className="px-5 py-3.5 text-sm font-semibold font-mono" style={{ color: "#10b981" }}>${(call.estimated_value || 0).toLocaleString()}</td>
                     <td className="px-5 py-3.5"><StatusBadge status={call.status} /></td>
-                    <td className="px-5 py-3.5 text-xs" style={{ color: "#64748b" }}>
-                      {new Date(call.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}
-                    </td>
+                    <td className="px-5 py-3.5 text-xs" style={{ color: "#64748b" }}>{new Date(call.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}</td>
                   </tr>
                 ))}
               </tbody>
