@@ -226,7 +226,7 @@ export default function SettingsPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <div>
           <h1 className="text-2xl font-bold" style={{ color: "#e2e8f0" }}>Settings</h1>
           <p className="text-sm mt-1" style={{ color: "#64748b" }}>Manage your AI agent and business preferences</p>
@@ -239,9 +239,9 @@ export default function SettingsPage() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 mb-6 p-1 rounded-lg" style={{ background: "rgba(15,23,42,0.5)" }}>
+      <div className="flex gap-1 mb-6 p-1 rounded-lg overflow-x-auto" style={{ background: "rgba(15,23,42,0.5)", WebkitOverflowScrolling: "touch" }}>
         {tabs.map(t => (
-          <button key={t.id} onClick={() => setActiveTab(t.id)} className="flex-1 py-2.5 rounded-lg text-sm font-medium transition-all" style={{
+          <button key={t.id} onClick={() => setActiveTab(t.id)} className="flex-1 py-2.5 px-3 rounded-lg text-sm font-medium transition-all whitespace-nowrap" style={{
             background: activeTab === t.id ? "rgba(6,182,212,0.15)" : "transparent",
             color: activeTab === t.id ? "#06b6d4" : "#64748b",
             border: activeTab === t.id ? "1px solid rgba(6,182,212,0.3)" : "1px solid transparent",
@@ -257,7 +257,7 @@ export default function SettingsPage() {
           {/* Voice */}
           <div className="rounded-xl p-6" style={{ background: "rgba(15,23,42,0.6)", border: "1px solid rgba(100,116,139,0.12)" }}>
             <h3 className="text-sm font-semibold mb-4" style={{ color: "#e2e8f0" }}>Voice</h3>
-            <div className="grid grid-cols-4 gap-2">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
               {VOICES.map(v => (
                 <button key={v.id} onClick={() => updateForm("voice", v.id)} className="p-3 rounded-lg text-center transition-all" style={{
                   background: form.voice === v.id ? "rgba(6,182,212,0.15)" : "rgba(30,41,59,0.5)",
@@ -273,7 +273,7 @@ export default function SettingsPage() {
           {/* Language */}
           <div className="rounded-xl p-6" style={{ background: "rgba(15,23,42,0.6)", border: "1px solid rgba(100,116,139,0.12)" }}>
             <h3 className="text-sm font-semibold mb-4" style={{ color: "#e2e8f0" }}>Language</h3>
-            <div className="grid grid-cols-5 gap-2">
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
               {LANGUAGES.map(l => (
                 <button key={l.id} onClick={() => updateForm("language", l.id)} className="p-2.5 rounded-lg text-center transition-all" style={{
                   background: form.language === l.id ? "rgba(6,182,212,0.15)" : "rgba(30,41,59,0.5)",
@@ -289,7 +289,7 @@ export default function SettingsPage() {
           {/* Personality */}
           <div className="rounded-xl p-6" style={{ background: "rgba(15,23,42,0.6)", border: "1px solid rgba(100,116,139,0.12)" }}>
             <h3 className="text-sm font-semibold mb-4" style={{ color: "#e2e8f0" }}>Personality</h3>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {PERSONALITIES.map(p => (
                 <button key={p.id} onClick={() => updateForm("personality", p.id)} className="p-3 rounded-lg text-left transition-all" style={{
                   background: form.personality === p.id ? "rgba(6,182,212,0.15)" : "rgba(30,41,59,0.5)",
@@ -335,11 +335,11 @@ export default function SettingsPage() {
           <div className="rounded-xl p-6" style={{ background: "rgba(15,23,42,0.6)", border: "1px solid rgba(100,116,139,0.12)" }}>
             <h3 className="text-sm font-semibold mb-4" style={{ color: "#e2e8f0" }}>Business Information</h3>
             <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div><label className="block text-xs font-medium mb-1.5" style={{ color: "#94a3b8" }}>Business Name</label><input value={form.business_name} onChange={e => updateForm("business_name", e.target.value)} className={inputStyle} style={inputBg} /></div>
                 <div><label className="block text-xs font-medium mb-1.5" style={{ color: "#94a3b8" }}>Phone</label><input value={form.phone} onChange={e => updateForm("phone", e.target.value)} className={inputStyle} style={inputBg} /></div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div><label className="block text-xs font-medium mb-1.5" style={{ color: "#94a3b8" }}>Notification Email</label><input value={form.notification_email} onChange={e => updateForm("notification_email", e.target.value)} className={inputStyle} style={inputBg} /></div>
                 <div><label className="block text-xs font-medium mb-1.5" style={{ color: "#94a3b8" }}>Website</label><input value={form.website} onChange={e => updateForm("website", e.target.value)} className={inputStyle} style={inputBg} /></div>
               </div>

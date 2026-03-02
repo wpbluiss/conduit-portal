@@ -71,13 +71,13 @@ export default function DashboardPage() {
       {/* Agent Status Card */}
       {client && (
         <div className="mb-6 rounded-xl p-5" style={{ background: "rgba(15,23,42,0.6)", border: `1px solid ${client.agent_configured ? "rgba(16,185,129,0.2)" : "rgba(245,158,11,0.2)"}` }}>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: client.agent_configured ? "rgba(16,185,129,0.15)" : "rgba(245,158,11,0.15)" }}>
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0" style={{ background: client.agent_configured ? "rgba(16,185,129,0.15)" : "rgba(245,158,11,0.15)" }}>
                 <span className="text-2xl">{client.agent_configured ? "🤖" : "⏳"}</span>
               </div>
               <div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   <h3 className="text-sm font-semibold" style={{ color: "#e2e8f0" }}>AI Agent</h3>
                   <span className="text-xs px-2 py-0.5 rounded-full font-semibold" style={{
                     background: client.agent_configured ? "rgba(16,185,129,0.15)" : "rgba(245,158,11,0.15)",
@@ -86,22 +86,22 @@ export default function DashboardPage() {
                     {client.agent_configured ? "● Live" : "● Setting up"}
                   </span>
                 </div>
-                <div className="flex items-center gap-3 mt-1">
+                <div className="flex items-center gap-3 mt-1 flex-wrap">
                   <span className="text-xs" style={{ color: "#64748b" }}>
                     {VOICE_NAMES[client.agent_voice] || "Alloy"} voice
                   </span>
-                  <span className="text-xs" style={{ color: "#475569" }}>·</span>
+                  <span className="text-xs hidden sm:inline" style={{ color: "#475569" }}>·</span>
                   <span className="text-xs" style={{ color: "#64748b" }}>
                     {LANG_FLAGS[client.agent_language] || "🇺🇸"} {LANG_NAMES[client.agent_language] || "English"}
                   </span>
-                  <span className="text-xs" style={{ color: "#475569" }}>·</span>
+                  <span className="text-xs hidden sm:inline" style={{ color: "#475569" }}>·</span>
                   <span className="text-xs" style={{ color: "#64748b" }}>
                     {(client.agent_personality || "professional").charAt(0).toUpperCase() + (client.agent_personality || "professional").slice(1)}
                   </span>
                 </div>
               </div>
             </div>
-            <div className="text-right">
+            <div className="text-left sm:text-right ml-16 sm:ml-0">
               {client.assigned_phone && (
                 <p className="text-sm font-mono font-semibold" style={{ color: "#06b6d4" }}>{client.assigned_phone}</p>
               )}
@@ -141,8 +141,8 @@ export default function DashboardPage() {
             <p className="text-sm" style={{ color: "#64748b" }}>No calls recovered yet. They'll appear here once your AI agent starts handling calls.</p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full">
+          <div className="overflow-x-auto" style={{ WebkitOverflowScrolling: "touch" }}>
+            <table className="w-full" style={{ minWidth: 600 }}>
               <thead>
                 <tr style={{ borderBottom: "1px solid rgba(100, 116, 139, 0.08)" }}>
                   {["Caller", "Service Needed", "Est. Value", "Status", "Time"].map(h => (

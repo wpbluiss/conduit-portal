@@ -140,9 +140,9 @@ export default function BillingPage() {
         {/* Payment Method (mock) */}
         <div className="rounded-xl p-6" style={{ background: "rgba(15,23,42,0.6)", border: "1px solid rgba(100,116,139,0.12)" }}>
           <h3 className="text-sm font-semibold mb-4" style={{ color: "#e2e8f0" }}>Payment Method</h3>
-          <div className="flex items-center justify-between p-4 rounded-lg" style={{ background: "rgba(30,41,59,0.3)", border: "1px solid rgba(100,116,139,0.1)" }}>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-lg" style={{ background: "rgba(30,41,59,0.3)", border: "1px solid rgba(100,116,139,0.1)" }}>
             <div className="flex items-center gap-3">
-              <div className="w-10 h-7 rounded flex items-center justify-center" style={{ background: "linear-gradient(135deg, #1a1f71, #2d5aba)" }}>
+              <div className="w-10 h-7 rounded flex items-center justify-center shrink-0" style={{ background: "linear-gradient(135deg, #1a1f71, #2d5aba)" }}>
                 <span className="text-white text-xs font-bold">VISA</span>
               </div>
               <div>
@@ -150,7 +150,7 @@ export default function BillingPage() {
                 <p className="text-xs" style={{ color: "#64748b" }}>Expires 12/2027</p>
               </div>
             </div>
-            <button disabled className="px-4 py-2 rounded-lg text-xs font-medium transition-all opacity-50 cursor-not-allowed" style={{ background: "rgba(100,116,139,0.15)", color: "#94a3b8", border: "1px solid rgba(100,116,139,0.2)" }}>
+            <button disabled className="px-4 py-2 rounded-lg text-xs font-medium transition-all opacity-50 cursor-not-allowed self-start sm:self-auto" style={{ background: "rgba(100,116,139,0.15)", color: "#94a3b8", border: "1px solid rgba(100,116,139,0.2)" }}>
               Update — Coming Soon
             </button>
           </div>
@@ -159,8 +159,8 @@ export default function BillingPage() {
         {/* Billing History (mock) */}
         <div className="rounded-xl p-6" style={{ background: "rgba(15,23,42,0.6)", border: "1px solid rgba(100,116,139,0.12)" }}>
           <h3 className="text-sm font-semibold mb-4" style={{ color: "#e2e8f0" }}>Billing History</h3>
-          <div className="overflow-x-auto">
-            <table className="w-full">
+          <div className="overflow-x-auto" style={{ WebkitOverflowScrolling: "touch" }}>
+            <table className="w-full" style={{ minWidth: 500 }}>
               <thead>
                 <tr style={{ borderBottom: "1px solid rgba(100,116,139,0.15)" }}>
                   <th className="text-left text-xs font-medium py-3 px-2" style={{ color: "#64748b" }}>Date</th>
