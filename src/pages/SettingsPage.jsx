@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
+import { Icons, StatCard } from '../components/ui'
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'https://conduit-backend-production.up.railway.app'
 
@@ -50,6 +51,13 @@ export default function SettingsPage() {
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const [activeTab, setActiveTab] = useState("agent")
+  const [affiliate, setAffiliate] = useState(null)
+  const [referrals, setReferrals] = useState([])
+  const [referralClients, setReferralClients] = useState({})
+  const [referralsLoading, setReferralsLoading] = useState(false)
+  const [affiliateChecked, setAffiliateChecked] = useState(false)
+  const [creatingAffiliate, setCreatingAffiliate] = useState(false)
+  const [copied, setCopied] = useState("")
   const [form, setForm] = useState({
     voice: "alloy", language: "en", personality: "professional",
     greeting: "", business_hours: "24_7", custom_hours: "",
@@ -90,6 +98,68 @@ export default function SettingsPage() {
   }, [user])
 
   const updateForm = (key, val) => { setForm(prev => ({ ...prev, [key]: val })); setSaved(false) }
+
+  // Lazy-load affiliate data when referrals tab activated
+  useEffect(() => {
+    if (activeTab !== "referrals" || affiliateChecked) return
+    async function loadAffiliate() {
+      setReferralsLoading(true)
+      try {
+        const res = await fetch(`${BACKEND_URL}/api/v1/affiliates`)
+        const data = await res.json()
+        const match = (data.affiliates || []).find(a => a.email === user?.email)
+        if (match) {
+          setAffiliate(match)
+          // Fetch referrals
+          const rRes = await fetch(`${BACKEND_URL}/api/v1/affiliates/${match.id}/referrals`)
+          const rData = await rRes.json()
+          const refs = rData.referrals || []
+          setReferrals(refs)
+          // Bulk resolve business names
+          const clientIds = refs.map(r => r.referred_client_id).filter(Boolean)
+          if (clientIds.length > 0) {
+            const { data: clients } = await supabase
+              .from("clients")
+              .select("id, business_name")
+              .in("id", clientIds)
+            const map = {}
+            ;(clients || []).forEach(c => { map[c.id] = c.business_name })
+            setReferralClients(map)
+          }
+        }
+      } catch (e) { console.log("Failed to load affiliate data:", e) }
+      setAffiliateChecked(true)
+      setReferralsLoading(false)
+    }
+    loadAffiliate()
+  }, [activeTab, affiliateChecked, user?.email])
+
+  const handleCreateAffiliate = async () => {
+    if (!client || creatingAffiliate) return
+    setCreatingAffiliate(true)
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/v1/affiliates`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: client.business_name || user?.email,
+          email: user?.email,
+          phone: client.phone || "",
+        }),
+      })
+      const data = await res.json()
+      if (data.id) {
+        setAffiliate({ id: data.id, referral_code: data.referral_code, commission_percent: data.commission_percent, email: user?.email, name: client.business_name || user?.email, total_referrals: 0, total_earned: 0 })
+      }
+    } catch (e) { console.log("Failed to create affiliate:", e) }
+    setCreatingAffiliate(false)
+  }
+
+  const copyToClipboard = (text, label) => {
+    navigator.clipboard.writeText(text)
+    setCopied(label)
+    setTimeout(() => setCopied(""), 2000)
+  }
 
   const handleSave = async () => {
     if (!client) return
@@ -145,6 +215,7 @@ export default function SettingsPage() {
     { id: "agent", label: "AI Agent", icon: "🤖" },
     { id: "business", label: "Business", icon: "🏢" },
     { id: "integrations", label: "Integrations", icon: "🔗" },
+    { id: "referrals", label: "Referrals", icon: "🤝" },
   ]
 
   if (loading) return (
@@ -160,9 +231,11 @@ export default function SettingsPage() {
           <h1 className="text-2xl font-bold" style={{ color: "#e2e8f0" }}>Settings</h1>
           <p className="text-sm mt-1" style={{ color: "#64748b" }}>Manage your AI agent and business preferences</p>
         </div>
-        <button onClick={handleSave} disabled={saving} className="px-6 py-2.5 rounded-lg text-sm font-semibold text-white transition-all disabled:opacity-70" style={{ background: saved ? "#10b981" : "linear-gradient(135deg, #06b6d4, #3b82f6)" }}>
-          {saving ? "Saving..." : saved ? "✓ Saved" : "Save Changes"}
-        </button>
+        {activeTab !== "referrals" && (
+          <button onClick={handleSave} disabled={saving} className="px-6 py-2.5 rounded-lg text-sm font-semibold text-white transition-all disabled:opacity-70" style={{ background: saved ? "#10b981" : "linear-gradient(135deg, #06b6d4, #3b82f6)" }}>
+            {saving ? "Saving..." : saved ? "✓ Saved" : "Save Changes"}
+          </button>
+        )}
       </div>
 
       {/* Tabs */}
@@ -361,6 +434,153 @@ export default function SettingsPage() {
               </div>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Referrals Tab */}
+      {activeTab === "referrals" && (
+        <div className="space-y-6">
+          {referralsLoading ? (
+            <div className="flex items-center justify-center h-48">
+              <div className="inline-block w-6 h-6 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin" />
+            </div>
+          ) : !affiliate ? (
+            /* CTA: Become a Referral Partner */
+            <div className="rounded-xl p-8 text-center" style={{ background: "rgba(15,23,42,0.6)", border: "1px solid rgba(6,182,212,0.15)" }}>
+              <div className="w-16 h-16 rounded-full mx-auto mb-5 flex items-center justify-center" style={{ background: "rgba(6,182,212,0.12)" }}>
+                <span className="text-3xl">🤝</span>
+              </div>
+              <h3 className="text-xl font-bold mb-2" style={{ color: "#e2e8f0" }}>Become a Referral Partner</h3>
+              <p className="text-sm mb-6 max-w-md mx-auto" style={{ color: "#94a3b8" }}>
+                Earn <span style={{ color: "#06b6d4", fontWeight: 600 }}>20% commission</span> on every client you refer to ConduitAI. Share your unique link and start earning.
+              </p>
+              <div className="max-w-sm mx-auto mb-6 text-left space-y-3">
+                <div className="flex items-start gap-3">
+                  <div className="w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5" style={{ background: "rgba(16,185,129,0.15)" }}>
+                    <Icons.check size={12} style={{ color: "#10b981" }} />
+                  </div>
+                  <p className="text-sm" style={{ color: "#94a3b8" }}>Get a unique referral code and shareable link</p>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5" style={{ background: "rgba(16,185,129,0.15)" }}>
+                    <Icons.check size={12} style={{ color: "#10b981" }} />
+                  </div>
+                  <p className="text-sm" style={{ color: "#94a3b8" }}>Earn 20% recurring commission on each referral</p>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5" style={{ background: "rgba(16,185,129,0.15)" }}>
+                    <Icons.check size={12} style={{ color: "#10b981" }} />
+                  </div>
+                  <p className="text-sm" style={{ color: "#94a3b8" }}>Track your referrals and earnings in real time</p>
+                </div>
+              </div>
+              <button onClick={handleCreateAffiliate} disabled={creatingAffiliate} className="px-8 py-3 rounded-lg text-sm font-semibold text-white transition-all disabled:opacity-70" style={{ background: "linear-gradient(135deg, #06b6d4, #3b82f6)" }}>
+                {creatingAffiliate ? "Setting up..." : "Start Earning"}
+              </button>
+            </div>
+          ) : (
+            /* Full Affiliate Dashboard */
+            <>
+              {/* Referral Code Card */}
+              <div className="rounded-xl p-6" style={{ background: "rgba(15,23,42,0.6)", border: "1px solid rgba(6,182,212,0.15)" }}>
+                <h3 className="text-sm font-semibold mb-4" style={{ color: "#e2e8f0" }}>Your Referral Code</h3>
+                <div className="flex items-center gap-4 mb-4">
+                  <span className="text-lg sm:text-2xl font-bold font-mono tracking-wider" style={{ color: "#06b6d4" }}>{affiliate.referral_code}</span>
+                  <button onClick={() => copyToClipboard(affiliate.referral_code, "code")} className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all" style={{ background: copied === "code" ? "rgba(16,185,129,0.15)" : "rgba(6,182,212,0.12)", color: copied === "code" ? "#10b981" : "#06b6d4", border: `1px solid ${copied === "code" ? "rgba(16,185,129,0.3)" : "rgba(6,182,212,0.3)"}` }}>
+                    {copied === "code" ? "Copied!" : "Copy"}
+                  </button>
+                </div>
+                <div className="flex items-center gap-2">
+                  <input readOnly value={`https://conduitai.io?ref=${affiliate.referral_code}`} className="flex-1 px-3 py-2 rounded-lg text-xs font-mono" style={{ background: "rgba(30,41,59,0.5)", border: "1px solid rgba(100,116,139,0.2)", color: "#94a3b8" }} />
+                  <button onClick={() => copyToClipboard(`https://conduitai.io?ref=${affiliate.referral_code}`, "link")} className="px-3 py-2 rounded-lg text-xs font-medium transition-all shrink-0" style={{ background: copied === "link" ? "rgba(16,185,129,0.15)" : "rgba(6,182,212,0.12)", color: copied === "link" ? "#10b981" : "#06b6d4", border: `1px solid ${copied === "link" ? "rgba(16,185,129,0.3)" : "rgba(6,182,212,0.3)"}` }}>
+                    {copied === "link" ? "Copied!" : "Copy Link"}
+                  </button>
+                </div>
+              </div>
+
+              {/* Stats Row */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <StatCard
+                  label="Total Referrals"
+                  value={affiliate.total_referrals || referrals.length}
+                  icon={Icons.users}
+                  color="#06b6d4"
+                />
+                <StatCard
+                  label="Total Earned"
+                  value={`$${(affiliate.total_earned || 0).toFixed(2)}`}
+                  icon={Icons.dollar}
+                  color="#10b981"
+                />
+                <StatCard
+                  label="Pending Commissions"
+                  value={`$${referrals.filter(r => r.status !== "commission_paid").reduce((sum, r) => sum + (r.commission_amount || 0), 0).toFixed(2)}`}
+                  icon={Icons.clock}
+                  color="#f59e0b"
+                />
+              </div>
+
+              {/* Share Section */}
+              <div className="rounded-xl p-6" style={{ background: "rgba(15,23,42,0.6)", border: "1px solid rgba(100,116,139,0.12)" }}>
+                <h3 className="text-sm font-semibold mb-3" style={{ color: "#e2e8f0" }}>Share with Friends</h3>
+                <div className="relative">
+                  <textarea readOnly rows={3} className="w-full px-4 py-3 rounded-lg text-sm" style={{ background: "rgba(30,41,59,0.5)", border: "1px solid rgba(100,116,139,0.2)", color: "#94a3b8", resize: "none" }}
+                    value={`Hey! I've been using ConduitAI to handle my business calls with AI and it's been amazing. Use my referral link to get started: https://conduitai.io?ref=${affiliate.referral_code}`}
+                  />
+                  <button onClick={() => copyToClipboard(`Hey! I've been using ConduitAI to handle my business calls with AI and it's been amazing. Use my referral link to get started: https://conduitai.io?ref=${affiliate.referral_code}`, "message")} className="absolute top-2 right-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all" style={{ background: copied === "message" ? "rgba(16,185,129,0.15)" : "rgba(6,182,212,0.12)", color: copied === "message" ? "#10b981" : "#06b6d4" }}>
+                    {copied === "message" ? "Copied!" : "Copy Message"}
+                  </button>
+                </div>
+              </div>
+
+              {/* Referrals Table */}
+              <div className="rounded-xl p-6" style={{ background: "rgba(15,23,42,0.6)", border: "1px solid rgba(100,116,139,0.12)" }}>
+                <h3 className="text-sm font-semibold mb-4" style={{ color: "#e2e8f0" }}>Your Referrals</h3>
+                {referrals.length === 0 ? (
+                  <div className="text-center py-8">
+                    <span className="text-3xl mb-3 block">📭</span>
+                    <p className="text-sm" style={{ color: "#64748b" }}>No referrals yet. Share your link to get started!</p>
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead>
+                        <tr style={{ borderBottom: "1px solid rgba(100,116,139,0.15)" }}>
+                          <th className="text-left text-xs font-medium py-3 px-2" style={{ color: "#64748b" }}>Business</th>
+                          <th className="text-left text-xs font-medium py-3 px-2" style={{ color: "#64748b" }}>Date</th>
+                          <th className="text-left text-xs font-medium py-3 px-2" style={{ color: "#64748b" }}>Status</th>
+                          <th className="text-right text-xs font-medium py-3 px-2" style={{ color: "#64748b" }}>Commission</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {referrals.map(ref => {
+                          const statusConfig = {
+                            pending: { bg: "rgba(245,158,11,0.15)", color: "#f59e0b", label: "Pending" },
+                            converted: { bg: "rgba(6,182,212,0.15)", color: "#06b6d4", label: "Converted" },
+                            commission_paid: { bg: "rgba(16,185,129,0.15)", color: "#10b981", label: "Paid" },
+                          }
+                          const sc = statusConfig[ref.status] || statusConfig.pending
+                          return (
+                            <tr key={ref.id} style={{ borderBottom: "1px solid rgba(100,116,139,0.08)" }}>
+                              <td className="py-3 px-2 text-sm" style={{ color: "#e2e8f0" }}>{referralClients[ref.referred_client_id] || "—"}</td>
+                              <td className="py-3 px-2 text-sm" style={{ color: "#94a3b8" }}>{ref.created_at ? new Date(ref.created_at).toLocaleDateString() : "—"}</td>
+                              <td className="py-3 px-2">
+                                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium" style={{ background: sc.bg, color: sc.color }}>
+                                  <span className="w-1.5 h-1.5 rounded-full" style={{ background: sc.color }} />
+                                  {sc.label}
+                                </span>
+                              </td>
+                              <td className="py-3 px-2 text-sm font-medium text-right" style={{ color: "#e2e8f0" }}>${(ref.commission_amount || 0).toFixed(2)}</td>
+                            </tr>
+                          )
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+            </>
+          )}
         </div>
       )}
     </div>

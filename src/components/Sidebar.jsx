@@ -8,6 +8,7 @@ export default function Sidebar() {
   const clientNav = [
     { to: "/dashboard", label: "Dashboard", icon: Icons.dashboard },
     { to: "/calls", label: "Call Log", icon: Icons.phone },
+    { to: "/billing", label: "Billing", icon: Icons.billing },
     { to: "/settings", label: "Settings", icon: Icons.settings },
   ]
   const adminNav = [
@@ -15,6 +16,7 @@ export default function Sidebar() {
     { to: "/clients", label: "All Clients", icon: Icons.users },
     { to: "/dashboard", label: "Dashboard", icon: Icons.dashboard },
     { to: "/calls", label: "Call Log", icon: Icons.phone },
+    { to: "/billing", label: "Billing", icon: Icons.billing },
     { to: "/settings", label: "Settings", icon: Icons.settings },
   ]
   const nav = isAdmin ? adminNav : clientNav
