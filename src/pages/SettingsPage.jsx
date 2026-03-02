@@ -57,6 +57,7 @@ export default function SettingsPage() {
   const [referralsLoading, setReferralsLoading] = useState(false)
   const [affiliateChecked, setAffiliateChecked] = useState(false)
   const [creatingAffiliate, setCreatingAffiliate] = useState(false)
+  const [affiliateError, setAffiliateError] = useState("")
   const [copied, setCopied] = useState("")
   const [form, setForm] = useState({
     voice: "alloy", language: "en", personality: "professional",
@@ -137,21 +138,45 @@ export default function SettingsPage() {
   const handleCreateAffiliate = async () => {
     if (!client || creatingAffiliate) return
     setCreatingAffiliate(true)
+    setAffiliateError("")
     try {
       const res = await fetch(`${BACKEND_URL}/api/v1/affiliates`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name: client.business_name || user?.email,
+          name: client.contact_name || client.business_name || user?.email,
+          business_name: client.business_name || "",
           email: user?.email,
           phone: client.phone || "",
         }),
       })
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}))
+        throw new Error(errData.detail || errData.error || `Request failed (${res.status})`)
+      }
       const data = await res.json()
       if (data.id) {
-        setAffiliate({ id: data.id, referral_code: data.referral_code, commission_percent: data.commission_percent, email: user?.email, name: client.business_name || user?.email, total_referrals: 0, total_earned: 0 })
+        // Fetch the full affiliate record so dashboard has all fields
+        try {
+          const fullRes = await fetch(`${BACKEND_URL}/api/v1/affiliates`)
+          const fullData = await fullRes.json()
+          const match = (fullData.affiliates || []).find(a => a.id === data.id)
+          if (match) {
+            setAffiliate(match)
+          } else {
+            setAffiliate({ id: data.id, referral_code: data.referral_code, commission_percent: data.commission_percent, email: user?.email, name: client.business_name || user?.email, total_referrals: 0, total_earned: 0, status: "active" })
+          }
+        } catch {
+          setAffiliate({ id: data.id, referral_code: data.referral_code, commission_percent: data.commission_percent, email: user?.email, name: client.business_name || user?.email, total_referrals: 0, total_earned: 0, status: "active" })
+        }
+        setReferrals([])
+      } else {
+        throw new Error("No affiliate ID returned")
       }
-    } catch (e) { console.log("Failed to create affiliate:", e) }
+    } catch (e) {
+      console.log("Failed to create affiliate:", e)
+      setAffiliateError(e.message || "Something went wrong. Please try again.")
+    }
     setCreatingAffiliate(false)
   }
 
@@ -390,21 +415,60 @@ export default function SettingsPage() {
               </div>
               <div>
                 <h3 className="text-sm font-semibold" style={{ color: "#e2e8f0" }}>Zapier Integration</h3>
-                <p style={{ fontSize: 11, color: "#64748b" }}>Connect to 6,000+ apps — CRM, Google Sheets, Slack, and more</p>
+                <p style={{ fontSize: 11, color: "#64748b" }}>Automatically sync your leads to any business tool</p>
               </div>
             </div>
+
+            {/* 3-step instructions */}
+            <div className="mb-5 space-y-3">
+              <p className="text-xs font-semibold" style={{ color: "#94a3b8" }}>Connect your business tools in 3 steps:</p>
+              <div className="space-y-2.5">
+                <div className="flex items-start gap-3">
+                  <span className="w-5 h-5 rounded-full flex items-center justify-center shrink-0 text-xs font-bold" style={{ background: "rgba(255,107,0,0.15)", color: "#f97316" }}>1</span>
+                  <p className="text-xs" style={{ color: "#94a3b8" }}>Go to <a href="https://zapier.com" target="_blank" rel="noopener noreferrer" className="underline" style={{ color: "#06b6d4" }}>zapier.com</a> and create a free account</p>
+                </div>
+                <div className="flex items-start gap-3">
+                  <span className="w-5 h-5 rounded-full flex items-center justify-center shrink-0 text-xs font-bold" style={{ background: "rgba(255,107,0,0.15)", color: "#f97316" }}>2</span>
+                  <p className="text-xs" style={{ color: "#94a3b8" }}>Search for "Webhooks by Zapier" and select "Catch Hook" as your trigger</p>
+                </div>
+                <div className="flex items-start gap-3">
+                  <span className="w-5 h-5 rounded-full flex items-center justify-center shrink-0 text-xs font-bold" style={{ background: "rgba(255,107,0,0.15)", color: "#f97316" }}>3</span>
+                  <p className="text-xs" style={{ color: "#94a3b8" }}>Copy the webhook URL Zapier gives you and paste it below</p>
+                </div>
+              </div>
+              <p className="text-xs" style={{ color: "#64748b" }}>Your leads will automatically sync to any app — Google Sheets, Booksy, ServiceTitan, Jobber, HouseCall Pro, and 6,000+ more.</p>
+            </div>
+
             <div>
               <label className="block text-xs font-medium mb-1.5" style={{ color: "#94a3b8" }}>Zapier Webhook URL</label>
               <input value={form.zapier_webhook_url} onChange={e => updateForm("zapier_webhook_url", e.target.value)} placeholder="https://hooks.zapier.com/hooks/catch/..." className={inputStyle} style={inputBg} />
-              <p className="text-xs mt-2" style={{ color: "#475569" }}>
-                Create a Zap in Zapier using "Webhooks by Zapier" as the trigger → "Catch Hook". Paste the webhook URL here and every new lead will be sent to your Zap automatically.
-              </p>
             </div>
+
             <div className="mt-4 p-3 rounded-lg" style={{ background: "rgba(6,182,212,0.06)", border: "1px solid rgba(6,182,212,0.12)" }}>
-              <p className="text-xs font-semibold mb-1" style={{ color: "#06b6d4" }}>Data sent to Zapier:</p>
+              <p className="text-xs font-semibold mb-1" style={{ color: "#06b6d4" }}>Data sent with each lead:</p>
               <p style={{ fontSize: 11, color: "#94a3b8", fontFamily: "monospace" }}>
                 caller_name, caller_phone, service_needed, urgency, estimated_value, transcript, business_name, timestamp
               </p>
+            </div>
+
+            {/* Popular connections */}
+            <div className="mt-5">
+              <p className="text-xs font-semibold mb-3" style={{ color: "#94a3b8" }}>Popular connections:</p>
+              <div className="flex flex-wrap gap-2">
+                {[
+                  { name: "Booksy", icon: "📅", bg: "rgba(139,92,246,0.12)" },
+                  { name: "Google Sheets", icon: "📊", bg: "rgba(16,185,129,0.12)" },
+                  { name: "ServiceTitan", icon: "🔧", bg: "rgba(6,182,212,0.12)" },
+                  { name: "Jobber", icon: "📋", bg: "rgba(59,130,246,0.12)" },
+                  { name: "HouseCall Pro", icon: "🏠", bg: "rgba(245,158,11,0.12)" },
+                  { name: "Calendly", icon: "🗓️", bg: "rgba(96,165,250,0.12)" },
+                ].map(app => (
+                  <div key={app.name} className="flex items-center gap-2 px-3 py-2 rounded-lg" style={{ background: app.bg, border: "1px solid rgba(100,116,139,0.1)" }}>
+                    <span className="text-sm">{app.icon}</span>
+                    <span className="text-xs font-medium" style={{ color: "#e2e8f0" }}>{app.name}</span>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
 
@@ -419,7 +483,7 @@ export default function SettingsPage() {
                 <p style={{ fontSize: 11, color: "#64748b" }}>Works with Make.com, n8n, or any custom endpoint</p>
               </div>
             </div>
-            <p className="text-xs" style={{ color: "#64748b" }}>The same Zapier webhook URL field above works with any webhook receiver. We send a POST request with JSON data for every new lead.</p>
+            <p className="text-xs" style={{ color: "#64748b" }}>The same webhook URL field above works with any webhook receiver. We send a POST request with JSON data for every new lead.</p>
           </div>
 
           {/* API Access coming soon */}
@@ -474,8 +538,18 @@ export default function SettingsPage() {
                   <p className="text-sm" style={{ color: "#94a3b8" }}>Track your referrals and earnings in real time</p>
                 </div>
               </div>
+              {affiliateError && (
+                <div className="mb-4 p-3 rounded-lg text-center" style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.2)" }}>
+                  <p className="text-xs font-medium" style={{ color: "#ef4444" }}>{affiliateError}</p>
+                </div>
+              )}
               <button onClick={handleCreateAffiliate} disabled={creatingAffiliate} className="px-8 py-3 rounded-lg text-sm font-semibold text-white transition-all disabled:opacity-70" style={{ background: "linear-gradient(135deg, #06b6d4, #3b82f6)" }}>
-                {creatingAffiliate ? "Setting up..." : "Start Earning"}
+                {creatingAffiliate ? (
+                  <span className="flex items-center gap-2 justify-center">
+                    <span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    Setting up...
+                  </span>
+                ) : "Start Earning"}
               </button>
             </div>
           ) : (

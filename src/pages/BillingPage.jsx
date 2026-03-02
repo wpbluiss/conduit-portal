@@ -9,11 +9,6 @@ const PLAN_MAP = {
   enterprise: { name: "Home Services", price: 349, leads: 500 },
 }
 
-const MOCK_INVOICES = [
-  { id: "INV-001", date: "Feb 1, 2026", description: "Monthly subscription", amount: null, status: "paid" },
-  { id: "INV-002", date: "Jan 1, 2026", description: "Monthly subscription", amount: null, status: "paid" },
-  { id: "INV-003", date: "Dec 1, 2025", description: "Monthly subscription", amount: null, status: "paid" },
-]
 
 export default function BillingPage() {
   const { user } = useAuth()
@@ -57,23 +52,6 @@ export default function BillingPage() {
     trialProgress = Math.min(100, Math.max(0, ((14 - trialDaysLeft) / 14) * 100))
   }
 
-  const invoices = MOCK_INVOICES.map(inv => ({ ...inv, amount: inv.amount || displayPrice }))
-
-  const statusBadge = (status) => {
-    const config = {
-      paid: { bg: "rgba(16,185,129,0.15)", color: "#10b981", label: "Paid" },
-      pending: { bg: "rgba(245,158,11,0.15)", color: "#f59e0b", label: "Pending" },
-      failed: { bg: "rgba(239,68,68,0.15)", color: "#ef4444", label: "Failed" },
-    }
-    const c = config[status] || config.paid
-    return (
-      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium" style={{ background: c.bg, color: c.color }}>
-        <span className="w-1.5 h-1.5 rounded-full" style={{ background: c.color }} />
-        {c.label}
-      </span>
-    )
-  }
-
   return (
     <div>
       {/* Header */}
@@ -87,7 +65,7 @@ export default function BillingPage() {
         <span className="text-lg mt-0.5">⚠️</span>
         <div>
           <p className="text-sm font-semibold" style={{ color: "#f59e0b" }}>Sample Data</p>
-          <p className="text-xs mt-0.5" style={{ color: "#94a3b8" }}>Payment method and billing history shown below are sample data. Full billing integration coming soon.</p>
+          <p className="text-xs mt-0.5" style={{ color: "#94a3b8" }}>Your plan details are shown below. Payment method and billing history will be available once full billing integration is live.</p>
         </div>
       </div>
 
@@ -137,53 +115,32 @@ export default function BillingPage() {
           </div>
         )}
 
-        {/* Payment Method (mock) */}
+        {/* Payment Method */}
         <div className="rounded-xl p-6" style={{ background: "rgba(15,23,42,0.6)", border: "1px solid rgba(100,116,139,0.12)" }}>
           <h3 className="text-sm font-semibold mb-4" style={{ color: "#e2e8f0" }}>Payment Method</h3>
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-lg" style={{ background: "rgba(30,41,59,0.3)", border: "1px solid rgba(100,116,139,0.1)" }}>
             <div className="flex items-center gap-3">
-              <div className="w-10 h-7 rounded flex items-center justify-center shrink-0" style={{ background: "linear-gradient(135deg, #1a1f71, #2d5aba)" }}>
-                <span className="text-white text-xs font-bold">VISA</span>
+              <div className="w-10 h-7 rounded flex items-center justify-center shrink-0" style={{ background: "rgba(100,116,139,0.15)" }}>
+                <Icons.billing size={16} style={{ color: "#64748b" }} />
               </div>
               <div>
-                <p className="text-sm font-medium" style={{ color: "#e2e8f0" }}>Visa ending in 4242</p>
-                <p className="text-xs" style={{ color: "#64748b" }}>Expires 12/2027</p>
+                <p className="text-sm font-medium" style={{ color: "#94a3b8" }}>No payment method on file</p>
+                <p className="text-xs" style={{ color: "#64748b" }}>A payment method will be added when billing is enabled</p>
               </div>
             </div>
             <button disabled className="px-4 py-2 rounded-lg text-xs font-medium transition-all opacity-50 cursor-not-allowed self-start sm:self-auto" style={{ background: "rgba(100,116,139,0.15)", color: "#94a3b8", border: "1px solid rgba(100,116,139,0.2)" }}>
-              Update — Coming Soon
+              Add Method — Coming Soon
             </button>
           </div>
         </div>
 
-        {/* Billing History (mock) */}
+        {/* Billing History */}
         <div className="rounded-xl p-6" style={{ background: "rgba(15,23,42,0.6)", border: "1px solid rgba(100,116,139,0.12)" }}>
           <h3 className="text-sm font-semibold mb-4" style={{ color: "#e2e8f0" }}>Billing History</h3>
-          <div className="overflow-x-auto" style={{ WebkitOverflowScrolling: "touch" }}>
-            <table className="w-full" style={{ minWidth: 500 }}>
-              <thead>
-                <tr style={{ borderBottom: "1px solid rgba(100,116,139,0.15)" }}>
-                  <th className="text-left text-xs font-medium py-3 px-2" style={{ color: "#64748b" }}>Date</th>
-                  <th className="text-left text-xs font-medium py-3 px-2" style={{ color: "#64748b" }}>Description</th>
-                  <th className="text-left text-xs font-medium py-3 px-2" style={{ color: "#64748b" }}>Amount</th>
-                  <th className="text-left text-xs font-medium py-3 px-2" style={{ color: "#64748b" }}>Status</th>
-                  <th className="text-right text-xs font-medium py-3 px-2" style={{ color: "#64748b" }}></th>
-                </tr>
-              </thead>
-              <tbody>
-                {invoices.map(inv => (
-                  <tr key={inv.id} style={{ borderBottom: "1px solid rgba(100,116,139,0.08)" }}>
-                    <td className="py-3 px-2 text-sm" style={{ color: "#e2e8f0" }}>{inv.date}</td>
-                    <td className="py-3 px-2 text-sm" style={{ color: "#94a3b8" }}>{inv.description}</td>
-                    <td className="py-3 px-2 text-sm font-medium" style={{ color: "#e2e8f0" }}>${inv.amount.toFixed(2)}</td>
-                    <td className="py-3 px-2">{statusBadge(inv.status)}</td>
-                    <td className="py-3 px-2 text-right">
-                      <button disabled className="text-xs opacity-40 cursor-not-allowed" style={{ color: "#06b6d4" }}>Download</button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div className="text-center py-8">
+            <Icons.billing size={32} style={{ color: "#334155", margin: "0 auto 12px" }} />
+            <p className="text-sm font-medium" style={{ color: "#94a3b8" }}>No billing history yet</p>
+            <p className="text-xs mt-1" style={{ color: "#64748b" }}>Your billing history will appear here after your first payment.</p>
           </div>
         </div>
 
