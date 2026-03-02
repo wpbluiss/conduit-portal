@@ -6,49 +6,47 @@ import { useAuth } from '../context/AuthContext'
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'https://conduit-backend-production.up.railway.app'
 
 const industries = [
-  { id: "hvac", label: "HVAC", icon: "❄️", plan: "home_services" },
-  { id: "plumbing", label: "Plumbing", icon: "🔧", plan: "home_services" },
-  { id: "roofing", label: "Roofing", icon: "🏠", plan: "home_services" },
-  { id: "electrical", label: "Electrical", icon: "⚡", plan: "home_services" },
-  { id: "stucco", label: "Stucco/Masonry", icon: "🧱", plan: "home_services" },
-  { id: "painting", label: "Painting", icon: "🎨", plan: "home_services" },
-  { id: "landscaping", label: "Landscaping", icon: "🌿", plan: "home_services" },
-  { id: "fire_alarm", label: "Fire Alarm", icon: "🔥", plan: "home_services" },
-  { id: "pest_control", label: "Pest Control", icon: "🐛", plan: "home_services" },
-  { id: "cleaning", label: "Cleaning", icon: "🧹", plan: "home_services" },
-  { id: "auto_repair", label: "Auto Repair", icon: "🔧", plan: "home_services" },
-  { id: "towing", label: "Towing", icon: "🚗", plan: "home_services" },
-  { id: "locksmith", label: "Locksmith", icon: "🔑", plan: "home_services" },
-  { id: "salon", label: "Salon/Barbershop", icon: "💇", plan: "beauty" },
-  { id: "spa", label: "Spa/Wellness", icon: "💆", plan: "beauty" },
-  { id: "medspa", label: "Med Spa", icon: "💉", plan: "beauty" },
-  { id: "dental", label: "Dental", icon: "🦷", plan: "home_services" },
-  { id: "medical", label: "Medical", icon: "🏥", plan: "home_services" },
-  { id: "legal", label: "Legal", icon: "⚖️", plan: "home_services" },
-  { id: "real_estate", label: "Real Estate", icon: "🏡", plan: "home_services" },
-  { id: "insurance", label: "Insurance", icon: "🛡️", plan: "home_services" },
-  { id: "fitness", label: "Fitness/Gym", icon: "🏋️", plan: "beauty" },
-  { id: "restaurant", label: "Restaurant", icon: "🍽️", plan: "beauty" },
-  { id: "events", label: "Events", icon: "🎉", plan: "beauty" },
-  { id: "veterinary", label: "Veterinary", icon: "🐾", plan: "home_services" },
-  { id: "accounting", label: "Accounting", icon: "📊", plan: "home_services" },
-  { id: "property_mgmt", label: "Property Mgmt", icon: "🏢", plan: "home_services" },
-  { id: "personal", label: "Personal Use", icon: "👤", plan: "personal" },
-  { id: "other", label: "Other", icon: "➕", plan: "home_services" },
+  { id: "hvac", label: "HVAC", icon: "❄️" },
+  { id: "plumbing", label: "Plumbing", icon: "🔧" },
+  { id: "roofing", label: "Roofing", icon: "🏠" },
+  { id: "electrical", label: "Electrical", icon: "⚡" },
+  { id: "stucco", label: "Stucco/Masonry", icon: "🧱" },
+  { id: "painting", label: "Painting", icon: "🎨" },
+  { id: "landscaping", label: "Landscaping", icon: "🌿" },
+  { id: "fire_alarm", label: "Fire Alarm", icon: "🔥" },
+  { id: "pest_control", label: "Pest Control", icon: "🐛" },
+  { id: "cleaning", label: "Cleaning", icon: "🧹" },
+  { id: "auto_repair", label: "Auto Repair", icon: "🔧" },
+  { id: "towing", label: "Towing", icon: "🚗" },
+  { id: "locksmith", label: "Locksmith", icon: "🔑" },
+  { id: "salon", label: "Salon/Barbershop", icon: "💇" },
+  { id: "spa", label: "Spa/Wellness", icon: "💆" },
+  { id: "medspa", label: "Med Spa", icon: "💉" },
+  { id: "dental", label: "Dental", icon: "🦷" },
+  { id: "medical", label: "Medical", icon: "🏥" },
+  { id: "legal", label: "Legal", icon: "⚖️" },
+  { id: "real_estate", label: "Real Estate", icon: "🏡" },
+  { id: "insurance", label: "Insurance", icon: "🛡️" },
+  { id: "fitness", label: "Fitness/Gym", icon: "🏋️" },
+  { id: "restaurant", label: "Restaurant", icon: "🍽️" },
+  { id: "events", label: "Events", icon: "🎉" },
+  { id: "veterinary", label: "Veterinary", icon: "🐾" },
+  { id: "accounting", label: "Accounting", icon: "📊" },
+  { id: "property_mgmt", label: "Property Mgmt", icon: "🏢" },
+  { id: "personal", label: "Personal Use", icon: "👤" },
+  { id: "other", label: "Other", icon: "➕" },
 ]
 
 const PLANS = {
-  personal: {
-    name: "Personal", icon: "👤", monthly: 19.99, leads: 0, perLead: 0,
-    features: ["AI answers missed or all calls", "Custom greeting & personality", "Multi-language support", "Email & push notifications", "Basic analytics dashboard", "1 phone number included"],
+  solo: {
+    name: "Solo Operator", icon: "✂️", monthly: 39, leads: 50, perLead: 2,
+    desc: "For individual professionals — barbers, stylists, nail techs, solo contractors",
+    features: ["50 leads/mo included", "$2 per lead after 50", "AI receptionist 24/7", "Custom greeting & voice", "Email lead notifications", "Analytics dashboard"],
   },
-  beauty: {
-    name: "Beauty & Wellness", icon: "💇", monthly: 199, leads: 50, perLead: 3,
-    features: ["Up to 50 leads/mo included", "$3/lead after 50", "Custom booking scripts", "24/7 call capture", "Email lead notifications", "Analytics dashboard"],
-  },
-  home_services: {
-    name: "Home Services", icon: "🔧", monthly: 349, leads: 75, perLead: 5, popular: true,
-    features: ["Up to 75 leads/mo included", "$5/lead after 75", "Emergency call prioritization", "Job estimate capture", "24/7 call capture", "Revenue recovery tracking", "Analytics dashboard", "Priority support"],
+  business: {
+    name: "Business", icon: "🏢", monthly: 199, leads: 200, perLead: 0, popular: true,
+    desc: "For shops & salons with multiple staff members",
+    features: ["200 leads/mo included", "AI receptionist 24/7", "Custom booking scripts", "Multi-language support", "Revenue recovery tracking", "Priority support", "Analytics dashboard"],
   },
 }
 
@@ -98,7 +96,7 @@ export default function OnboardingPage() {
   const navigate = useNavigate()
   const { user } = useAuth()
   const isSuccess = window.location.pathname.includes('/success')
-  const [step, setStep] = useState(isSuccess ? 6 : 1)
+  const [step, setStep] = useState(isSuccess ? 7 : 1)
   const [loading, setLoading] = useState(false)
   const [provisionStatus, setProvisionStatus] = useState(null)
   const [clientId, setClientId] = useState(null)
@@ -108,22 +106,22 @@ export default function OnboardingPage() {
     notification_email: user?.email || "", services_offered: "",
     avg_job_value: "", timezone: "America/New_York",
     contact_name: "", website: "",
-    // Step 3: AI Agent config
+    // Step 2: Plan selection
+    plan: "",
+    // Step 4: AI Agent config
     voice: "alloy", language: "en", personality: "professional",
     greeting: "", business_hours: "24_7", custom_hours: "",
   })
 
   const updateForm = (key, val) => setForm(prev => ({ ...prev, [key]: val }))
   const selectedIndustry = industries.find(i => i.id === form.industry)
-  const detectedPlan = selectedIndustry?.plan || "home_services"
-  const plan = PLANS[detectedPlan]
+  const selectedPlan = PLANS[form.plan] || PLANS.solo
 
   const inputStyle = "w-full px-4 py-3 rounded-lg text-sm outline-none transition-all focus:ring-1 focus:ring-cyan-500/50"
   const inputBg = { background: "rgba(15,23,42,0.6)", border: "1px solid rgba(100,116,139,0.3)", color: "#e2e8f0" }
 
   const getDefaultGreeting = () => {
     const name = form.business_name || "our office"
-    const personality = PERSONALITIES.find(p => p.id === form.personality)
     if (form.personality === "professional") return `Thank you for calling ${name}. How may I assist you today?`
     if (form.personality === "friendly") return `Hey there! Thanks for calling ${name}. What can I help you with?`
     if (form.personality === "concise") return `${name}, how can I help?`
@@ -147,8 +145,8 @@ export default function OnboardingPage() {
         notification_email: form.notification_email,
         avg_job_value: parseFloat(form.avg_job_value) || 0,
         website: form.website, timezone: form.timezone, user_id: user?.id,
-        status: "onboarding", plan: detectedPlan === "beauty" ? "starter" : (detectedPlan === "personal" ? "personal" : "pro"),
-        monthly_rate: plan.monthly,
+        status: "onboarding", plan: form.plan || "solo",
+        monthly_rate: selectedPlan.monthly,
         agent_voice: form.voice, agent_language: form.language,
         agent_personality: form.personality,
         agent_greeting: form.greeting || getDefaultGreeting(),
@@ -191,13 +189,13 @@ export default function OnboardingPage() {
             notification_email: form.notification_email,
             contact_name: form.contact_name,
             phone: form.phone,
-            plan: detectedPlan,
+            plan: form.plan || "solo",
             email: user?.email,
           }),
         })
         const result = await res.json()
         if (result.success) {
-          setProvisionStatus("Your AI agent is live! 🎉")
+          setProvisionStatus("Your AI agent is live!")
         } else {
           setProvisionStatus("Agent queued — we'll finish setup within 24 hours")
         }
@@ -212,7 +210,7 @@ export default function OnboardingPage() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            plan: detectedPlan, email: user?.email,
+            plan: form.plan || "solo", email: user?.email,
             business_name: form.business_name, client_id: cId,
             phone: form.phone, industry: form.industry,
             contact_name: form.contact_name,
@@ -222,7 +220,7 @@ export default function OnboardingPage() {
         })
       } catch (e) { console.log("Notification sent or skipped") }
 
-      setStep(6)
+      setStep(7)
     } catch (e) {
       console.error("Trial signup error:", e)
       alert("Something went wrong. Please try again.")
@@ -230,7 +228,7 @@ export default function OnboardingPage() {
     setLoading(false)
   }
 
-  const totalSteps = 6
+  const totalSteps = 7
 
   return (
     <div className="min-h-screen flex items-center justify-center" style={{ background: "linear-gradient(135deg, #0a0e1a 0%, #0d1525 40%, #0a1628 100%)", fontFamily: "'Outfit', sans-serif" }}>
@@ -284,8 +282,44 @@ export default function OnboardingPage() {
             </div>
           </div>)}
 
-          {/* ─── STEP 2: Phone & Notifications ─── */}
+          {/* ─── STEP 2: Choose Your Plan ─── */}
           {step === 2 && (<div>
+            <h2 className="text-2xl font-bold mb-2" style={{ color: "#e2e8f0" }}>Choose your plan</h2>
+            <p className="text-sm mb-2" style={{ color: "#64748b" }}>Both plans include a 14-day free trial. No payment required today.</p>
+            <p className="text-xs mb-6" style={{ color: "#475569" }}>You can change your plan anytime after signing up.</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {Object.entries(PLANS).map(([key, p]) => (
+                <button key={key} onClick={() => updateForm("plan", key)} className="relative p-5 rounded-xl text-left transition-all hover:-translate-y-0.5" style={{
+                  background: form.plan === key ? "rgba(6,182,212,0.08)" : "rgba(30,41,59,0.5)",
+                  border: `2px solid ${form.plan === key ? "rgba(6,182,212,0.6)" : "rgba(100,116,139,0.15)"}`,
+                }}>
+                  {p.popular && (
+                    <div className="absolute -top-2.5 right-4 px-2.5 py-0.5 rounded-full text-xs font-semibold" style={{ background: "linear-gradient(135deg, #06b6d4, #3b82f6)", color: "white", fontSize: 10 }}>
+                      Most Popular
+                    </div>
+                  )}
+                  <div className="text-2xl mb-2">{p.icon}</div>
+                  <h3 className="text-lg font-bold mb-1" style={{ color: form.plan === key ? "#06b6d4" : "#e2e8f0" }}>{p.name}</h3>
+                  <div className="flex items-baseline gap-1 mb-2">
+                    <span className="text-2xl font-bold" style={{ color: form.plan === key ? "#06b6d4" : "#e2e8f0" }}>${p.monthly}</span>
+                    <span className="text-sm" style={{ color: "#64748b" }}>/mo</span>
+                  </div>
+                  <p className="text-xs mb-4" style={{ color: "#94a3b8" }}>{p.desc}</p>
+                  <div className="space-y-2">
+                    {p.features.map((f, i) => (
+                      <div key={i} className="flex items-start gap-2">
+                        <span className="mt-0.5" style={{ color: "#10b981" }}><CheckIcon size={12} /></span>
+                        <span className="text-xs" style={{ color: "#94a3b8" }}>{f}</span>
+                      </div>
+                    ))}
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>)}
+
+          {/* ─── STEP 3: Phone & Notifications ─── */}
+          {step === 3 && (<div>
             <h2 className="text-2xl font-bold mb-2" style={{ color: "#e2e8f0" }}>Phone & notification setup</h2>
             <p className="text-sm mb-8" style={{ color: "#64748b" }}>How should we capture and deliver your leads?</p>
             <div className="space-y-4">
@@ -298,8 +332,8 @@ export default function OnboardingPage() {
             </div>
           </div>)}
 
-          {/* ─── STEP 3: AI Agent Configuration ─── */}
-          {step === 3 && (<div>
+          {/* ─── STEP 4: AI Agent Configuration ─── */}
+          {step === 4 && (<div>
             <h2 className="text-2xl font-bold mb-2" style={{ color: "#e2e8f0" }}>Configure your AI agent</h2>
             <p className="text-sm mb-6" style={{ color: "#64748b" }}>Choose how your AI receptionist sounds and behaves.</p>
             <div className="space-y-5">
@@ -375,8 +409,8 @@ export default function OnboardingPage() {
             </div>
           </div>)}
 
-          {/* ─── STEP 4: Custom Greeting ─── */}
-          {step === 4 && (<div>
+          {/* ─── STEP 5: Custom Greeting ─── */}
+          {step === 5 && (<div>
             <h2 className="text-2xl font-bold mb-2" style={{ color: "#e2e8f0" }}>Set your greeting</h2>
             <p className="text-sm mb-6" style={{ color: "#64748b" }}>This is the first thing callers will hear. Customize it or use our suggestion.</p>
             <div className="space-y-4">
@@ -415,8 +449,8 @@ export default function OnboardingPage() {
             </div>
           </div>)}
 
-          {/* ─── STEP 5: Review & Start Trial ─── */}
-          {step === 5 && (<div>
+          {/* ─── STEP 6: Review & Start Trial ─── */}
+          {step === 6 && (<div>
             <h2 className="text-2xl font-bold mb-2" style={{ color: "#e2e8f0" }}>Review & start your free trial</h2>
             <p className="text-sm mb-6" style={{ color: "#64748b" }}>Everything looks good? Your AI agent will be configured automatically.</p>
 
@@ -426,7 +460,7 @@ export default function OnboardingPage() {
               <div className="space-y-2 text-sm" style={{ color: "#94a3b8" }}>
                 <div className="flex justify-between"><span>Business</span><span style={{ color: "#e2e8f0" }}>{form.business_name || "—"}</span></div>
                 <div className="flex justify-between"><span>Industry</span><span style={{ color: "#e2e8f0" }}>{selectedIndustry?.label || "—"}</span></div>
-                <div className="flex justify-between"><span>Plan</span><span style={{ color: "#06b6d4" }}>{plan?.name}</span></div>
+                <div className="flex justify-between"><span>Plan</span><span style={{ color: "#06b6d4" }}>{selectedPlan.name} — ${selectedPlan.monthly}/mo</span></div>
                 <div className="flex justify-between"><span>Phone</span><span style={{ color: "#e2e8f0" }}>{form.phone || "—"}</span></div>
               </div>
             </div>
@@ -445,7 +479,8 @@ export default function OnboardingPage() {
             {/* Pricing */}
             <div className="rounded-xl p-5 mb-4" style={{ background: "rgba(16,185,129,0.06)", border: "1px solid rgba(16,185,129,0.15)" }}>
               <div className="flex justify-between text-sm"><span style={{ color: "#94a3b8" }}>Today</span><span style={{ color: "#10b981", fontSize: "1.1rem", fontWeight: 700 }}>$0 — Free Trial</span></div>
-              <div className="flex justify-between text-sm mt-1"><span style={{ color: "#94a3b8" }}>After 14 days</span><span style={{ color: "#e2e8f0" }}>${plan?.monthly}/mo</span></div>
+              <div className="flex justify-between text-sm mt-1"><span style={{ color: "#94a3b8" }}>After 14 days</span><span style={{ color: "#e2e8f0" }}>${selectedPlan.monthly}/mo</span></div>
+              <div className="flex justify-between text-sm mt-1"><span style={{ color: "#94a3b8" }}>Leads included</span><span style={{ color: "#e2e8f0" }}>{selectedPlan.leads}/mo</span></div>
             </div>
 
             <button onClick={handleStartFreeTrial} disabled={loading} className="w-full py-4 rounded-xl text-sm font-bold text-white transition-all disabled:opacity-70 hover:-translate-y-0.5" style={{ background: "linear-gradient(135deg, #10b981, #06b6d4)", boxShadow: "0 0 30px rgba(16,185,129,0.3)" }}>
@@ -454,8 +489,8 @@ export default function OnboardingPage() {
             <p className="text-center text-xs mt-3" style={{ color: "#475569" }}>No payment today · AI agent auto-configured · Cancel anytime</p>
           </div>)}
 
-          {/* ─── STEP 6: Success ─── */}
-          {step === 6 && (<div className="text-center py-6">
+          {/* ─── STEP 7: Success ─── */}
+          {step === 7 && (<div className="text-center py-6">
             <div className="w-20 h-20 rounded-full mx-auto mb-6 flex items-center justify-center" style={{ background: "linear-gradient(135deg, rgba(6,182,212,0.2), rgba(59,130,246,0.2))", border: "2px solid rgba(6,182,212,0.3)" }}><CheckIcon size={36} /></div>
             <h2 className="text-2xl font-bold mb-2" style={{ color: "#e2e8f0" }}>Your AI agent is being set up!</h2>
             <p className="text-sm mb-2" style={{ color: "#10b981", fontWeight: 600 }}>14-day free trial started</p>
@@ -478,13 +513,18 @@ export default function OnboardingPage() {
           </div>)}
 
           {/* Navigation Buttons */}
-          {step < 5 && (
+          {step < 6 && (
             <div className="flex justify-between mt-8">
               {step > 1 ? (<button onClick={() => setStep(s => s - 1)} className="px-5 py-2.5 rounded-lg text-sm font-medium" style={{ color: "#94a3b8", border: "1px solid rgba(100,116,139,0.3)" }}>Back</button>) : <div />}
-              <button onClick={async () => { if (step === 2) { await handleSaveClient() } setStep(s => s + 1) }} className="px-5 py-2.5 rounded-lg text-sm font-semibold text-white" style={{ background: "linear-gradient(135deg, #06b6d4, #3b82f6)" }}>Continue</button>
+              <button
+                onClick={async () => { if (step === 3) { await handleSaveClient() } setStep(s => s + 1) }}
+                disabled={step === 2 && !form.plan}
+                className="px-5 py-2.5 rounded-lg text-sm font-semibold text-white disabled:opacity-40"
+                style={{ background: "linear-gradient(135deg, #06b6d4, #3b82f6)" }}
+              >Continue</button>
             </div>
           )}
-          {step === 5 && (<div className="flex justify-start mt-4"><button onClick={() => setStep(s => s - 1)} className="px-5 py-2.5 rounded-lg text-sm font-medium" style={{ color: "#94a3b8", border: "1px solid rgba(100,116,139,0.3)" }}>Back</button></div>)}
+          {step === 6 && (<div className="flex justify-start mt-4"><button onClick={() => setStep(s => s - 1)} className="px-5 py-2.5 rounded-lg text-sm font-medium" style={{ color: "#94a3b8", border: "1px solid rgba(100,116,139,0.3)" }}>Back</button></div>)}
         </div>
         <p className="text-center text-xs mt-4" style={{ color: "#475569" }}>Questions? Email <a href="mailto:luis@conduitai.io" style={{ color: "#06b6d4" }}>luis@conduitai.io</a> or call <a href="tel:+15614464520" style={{ color: "#06b6d4" }}>(561) 446-4520</a></p>
       </div>

@@ -4,9 +4,13 @@ import { useAuth } from '../context/AuthContext'
 import { Icons, StatCard } from '../components/ui'
 
 const PLAN_MAP = {
-  starter: { name: "Personal", price: 19.99, leads: 25 },
-  pro: { name: "Beauty & Wellness", price: 199, leads: 200 },
-  enterprise: { name: "Home Services", price: 349, leads: 500 },
+  solo: { name: "Solo Operator", price: 39, leads: 50 },
+  business: { name: "Business", price: 199, leads: 200 },
+  // Legacy mappings for existing clients
+  starter: { name: "Solo Operator", price: 39, leads: 50 },
+  personal: { name: "Solo Operator", price: 39, leads: 50 },
+  pro: { name: "Business", price: 199, leads: 200 },
+  enterprise: { name: "Business", price: 199, leads: 200 },
 }
 
 
