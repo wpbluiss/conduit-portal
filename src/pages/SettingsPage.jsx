@@ -447,8 +447,22 @@ export default function SettingsPage() {
             <div className="mt-4 p-3 rounded-lg" style={{ background: "rgba(6,182,212,0.06)", border: "1px solid rgba(6,182,212,0.12)" }}>
               <p className="text-xs font-semibold mb-1" style={{ color: "#06b6d4" }}>Data sent with each lead:</p>
               <p style={{ fontSize: 11, color: "#94a3b8", fontFamily: "monospace" }}>
-                caller_name, caller_phone, service_needed, urgency, estimated_value, transcript, business_name, timestamp
+                caller_name, caller_phone, caller_email, service_needed, urgency, estimated_value, preferred_date, preferred_time, transcript, business_name, timestamp
               </p>
+            </div>
+
+            {/* Google Calendar guide */}
+            <div className="mt-5 p-4 rounded-lg" style={{ background: "rgba(66,133,244,0.06)", border: "1px solid rgba(66,133,244,0.15)" }}>
+              <div className="flex items-center gap-2 mb-3">
+                <span className="text-base">📆</span>
+                <p className="text-xs font-semibold" style={{ color: "#4285f4" }}>Auto-add leads to Google Calendar</p>
+              </div>
+              <div className="space-y-2 mb-2">
+                <p className="text-xs" style={{ color: "#94a3b8" }}><span style={{ color: "#4285f4", fontWeight: 600 }}>1.</span> Go to zapier.com</p>
+                <p className="text-xs" style={{ color: "#94a3b8" }}><span style={{ color: "#4285f4", fontWeight: 600 }}>2.</span> Create a Zap: <span style={{ color: "#e2e8f0" }}>Webhooks by Zapier</span> (Catch Hook) → <span style={{ color: "#e2e8f0" }}>Google Calendar</span> (Create Event)</p>
+                <p className="text-xs" style={{ color: "#94a3b8" }}><span style={{ color: "#4285f4", fontWeight: 600 }}>3.</span> Map fields: Event title = <span className="font-mono" style={{ color: "#e2e8f0", fontSize: 10 }}>caller_name + service_needed</span>, Start time = <span className="font-mono" style={{ color: "#e2e8f0", fontSize: 10 }}>preferred_date + preferred_time</span>, Description = <span className="font-mono" style={{ color: "#e2e8f0", fontSize: 10 }}>transcript</span></p>
+                <p className="text-xs" style={{ color: "#94a3b8" }}><span style={{ color: "#4285f4", fontWeight: 600 }}>4.</span> Paste your webhook URL in the field above</p>
+              </div>
             </div>
 
             {/* Popular connections */}
@@ -456,6 +470,7 @@ export default function SettingsPage() {
               <p className="text-xs font-semibold mb-3" style={{ color: "#94a3b8" }}>Popular connections:</p>
               <div className="flex flex-wrap gap-2">
                 {[
+                  { name: "Google Calendar", icon: "📆", bg: "rgba(66,133,244,0.12)" },
                   { name: "Booksy", icon: "📅", bg: "rgba(139,92,246,0.12)" },
                   { name: "Google Sheets", icon: "📊", bg: "rgba(16,185,129,0.12)" },
                   { name: "ServiceTitan", icon: "🔧", bg: "rgba(6,182,212,0.12)" },
