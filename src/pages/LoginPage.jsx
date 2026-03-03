@@ -74,7 +74,7 @@ const LoginPage = () => {
           </h1>
           <p style={styles.subtitle}>
             {isSignUp 
-              ? '14 days free. No credit card required.' 
+              ? '14 days free. Cancel anytime.' 
               : 'Sign in to your dashboard.'}
           </p>
 
