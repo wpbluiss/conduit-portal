@@ -45,12 +45,7 @@ export default function Sidebar({ isOpen, onClose }) {
         {/* Logo + close button */}
         <div className="px-5 py-6 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: "linear-gradient(135deg, #06b6d4, #3b82f6)" }}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-            </div>
-            <span className="text-lg font-bold tracking-tight font-outfit" style={{ color: "#e2e8f0" }}>
-              Conduit<span style={{ color: "#06b6d4" }}>AI</span>
-            </span>
+            <img src="/logo.svg" alt="Conduit AI" style={{ height: 28 }} />
           </div>
           <button onClick={onClose} className="p-1.5 rounded-md text-slate-500 hover:text-slate-300 transition-colors md:hidden">
             <Icons.close size={18} />

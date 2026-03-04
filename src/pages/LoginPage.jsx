@@ -59,12 +59,7 @@ const LoginPage = () => {
       <div style={styles.container}>
         {/* Logo */}
         <div style={styles.logoRow}>
-          <div style={styles.logoMark}>
-            <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" width="20" height="20">
-              <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
-            </svg>
-          </div>
-          <span style={styles.logoText}>Conduit<span style={{color:'#00e5a0'}}>AI</span></span>
+          <img src="/logo.svg" alt="Conduit AI" style={{ height: 36 }} />
         </div>
 
         {/* Card */}
