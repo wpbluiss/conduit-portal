@@ -14,9 +14,7 @@ export default function AppLayout() {
         {/* Mobile top bar */}
         <div className="flex items-center justify-between px-4 py-3 md:hidden" style={{ borderBottom: "1px solid rgba(6, 182, 212, 0.1)" }}>
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: "linear-gradient(135deg, #06b6d4, #3b82f6)" }}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-            </div>
+            <img src="/icon.svg" alt="Conduit AI" width={32} height={32} style={{ borderRadius: 8 }} />
             <span className="text-base font-bold tracking-tight font-outfit" style={{ color: "#e2e8f0" }}>
               Conduit<span style={{ color: "#06b6d4" }}>AI</span>
             </span>

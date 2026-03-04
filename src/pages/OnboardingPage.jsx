@@ -432,9 +432,7 @@ export default function OnboardingPage() {
               {/* Preview card */}
               <div className="p-4 rounded-xl" style={{ background: "rgba(6,182,212,0.06)", border: "1px solid rgba(6,182,212,0.15)" }}>
                 <div className="flex items-center gap-2 mb-3">
-                  <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "linear-gradient(135deg, #06b6d4, #3b82f6)" }}>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-                  </div>
+                  <img src="/icon.svg" alt="Conduit AI" width={32} height={32} style={{ borderRadius: 16 }} />
                   <div>
                     <p className="text-xs font-semibold" style={{ color: "#e2e8f0" }}>Your AI Agent Preview</p>
                     <p style={{ fontSize: 10, color: "#64748b" }}>
